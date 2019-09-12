@@ -1,0 +1,24 @@
+#folders
+data/
+pypath_log/
+
+# Python compiled sources/cache
+**/*pyc
+**/__pycache__
+
+# Installation files
+/dist
+*.egg-info/
+/build
+
+# Other
+TODO.md
+*.log
+*.bak
+
+# R
+.Rhistory
+
+#OSX
+.DS_Store
+
