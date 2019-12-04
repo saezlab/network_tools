@@ -76,29 +76,26 @@ def pathfinder(igra, ori, fin):
     Use pypath to find all paths between all initial (ori) and
     final (fin) nodes in a graph (igra)
 
-    :param igra dict: {sample:igrapht} nodesAttributes_1.txt from CARNIVAL
-    :param ori dict: ori{sample:list of initial nodes} nodesAttributes_1.txt from CARNIVAL
-    :param fin dict: in{sample:list of final nodes} nodesAttributes_1.txt from CARNIVAL
-    :return: topaux {sample:list of lists (subpaths)}
-    :rtype: dict
+    :param igra igraph: igraph object
+    :param ori list: initial nodes
+    :param fin list: effector nodes
+    :return: uniquelist contains all subpath form initial to effector nodes
+    :rtype: listo of lists
     """
     import igraph as ig
     from pypath import main, data_formats
-    import pickle
 
-    topaux = {}
     pa = main.PyPath()
-    for sample in igra.keys():
-        topaux[sample] = pa.find_all_paths(start=ori[sample],
-                            end=fin[sample],
-                            attr = 'name',
-                            maxlen=len(igra[sample].get_edgelist()),
-                            graph = igra[sample])
-        #       topaux[sample] = set(map(tuple,topaux[sample]))
-        uniquelist = []
-        for i in topaux[sample]:
-            if i not in uniquelist:
-                uniquelist.append(i)
-        topaux[sample] = uniquelist
 
-    return(topaux)
+    topaux = pa.find_all_paths(start=ori,
+                    end=fin,
+                    attr = 'name',
+                    maxlen=len(igra.get_edgelist()),
+                    graph = igra)
+    #check to remove duplicates
+    uniquelist = []
+    for i in topaux:
+        if i not in uniquelist:
+            uniquelist.append(i)
+
+    return(uniquelist)
