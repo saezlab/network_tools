@@ -23,8 +23,3 @@ in macOS Catalina version 10.15.1.
      - 0.7.1
    * - **pypath**
      - 0.8.1
-   * - **xlrd**
-     - 1.2.0
-
-
-Copyright (C) 2019 Rosa Hernansaiz Ballesteros
