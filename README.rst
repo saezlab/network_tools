@@ -1,4 +1,5 @@
-# network_tools
+network_tools
+##########
 
 Collection of Python functions to run network-based analysis
 in signed and directed networks.
