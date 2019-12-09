@@ -5,13 +5,13 @@ DESCRIPTION : Functions to deal with comparisons between networks based on toplo
 LICENSE : GPL-v3
 """
 
-def CARNIVAL2igraph_convert(dfSample):
+def CARNIVAL2igraph_convert(weigthSample):
     """
     Transform CARNIVAL's output read as pd.df into igraph.
     It also gives the origin and ending nodes of the graph.
 
-    :param dfSample pd.df: weightedModel_1.txt from CARNIVAL
-    :return: nodAux (initial nodes), endAux (effectors), igrAux (igraph)
+    :param weithSample pd.df: weightedModel_1.txt from CARNIVAL
+    :return: Onodes (initial nodes), Enodes (effectors), igra (igraph)
     :rtype: list, list, igraph object
     """
 
@@ -21,12 +21,12 @@ def CARNIVAL2igraph_convert(dfSample):
 
     Enodes = [] #list effectors
     Onodes = [] #list initial Nodes
-    igr = [] #sample-igraph
+    igra = [] #sample-igraph
     mgraph = []
-    for line in dfSample.values:
+    for line in weigthSample.values:
         if len(line[np.where(line == "Perturbation")]) > 0 :
         #if x contains the 'Perturbation' edge, it's a root vertex
-            if line[2] in dfSample['Node1'].values:
+            if line[2] in weigthSample['Node1'].values:
             #if that node is not isolated, it is an initial node
                 Onodes.append(line[2])
         else:
@@ -35,13 +35,13 @@ def CARNIVAL2igraph_convert(dfSample):
                            'target':line[2],
                            'weight':line[1]*line[3]})
 
-    dfaux = dfSample[dfSample.Node1 != 'Perturbation']
+    dfaux = weigthSample[weigthSample.Node1 != 'Perturbation']
     Enodes = [j for j in dfaux[~dfaux['Node2'].isin(dfaux['Node1'])].Node2.drop_duplicates()]
     mgraph = pd.DataFrame(mgraph)
-    igr = ig.Graph.TupleList(mgraph.itertuples(index=False),
+    igra = ig.Graph.TupleList(mgraph.itertuples(index=False),
                                         weights=True, directed = True)
 
-    return(Onodes, Enodes, igr)
+    return(Onodes, Enodes, igra)
 
 def CARNIVALnode_attribute(igra, nodeSample):
     """
@@ -71,14 +71,14 @@ def CARNIVALnode_attribute(igra, nodeSample):
 
     return igra, isolated_nodes
 
-def pathfinder(igra, ori, fin):
+def pathfinder(igra, Onodes, Enodes):
     """
-    Use pypath to find all paths between all initial (ori) and
-    final (fin) nodes in a graph (igra)
+    Use pypath to find all paths between all initial (Onodes) and
+    final (Enodes) nodes in a graph (igra)
 
     :param igra igraph: igraph object
-    :param ori list: initial nodes
-    :param fin list: effector nodes
+    :param Onodes list: initial nodes
+    :param Enodes list: effector nodes
     :return: uniquelist contains all subpath form initial to effector nodes
     :rtype: listo of lists
     """
@@ -87,8 +87,8 @@ def pathfinder(igra, ori, fin):
 
     pa = main.PyPath()
 
-    topaux = pa.find_all_paths(start=ori,
-                    end=fin,
+    topaux = pa.find_all_paths(start=Onodes,
+                    end=Enodes,
                     attr = 'name',
                     maxlen=len(igra.get_edgelist()),
                     graph = igra)
