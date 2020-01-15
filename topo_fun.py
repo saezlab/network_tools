@@ -1,7 +1,9 @@
 """
-TITLE : Topological functions for network analysis
-AUTHOR : Hernansaiz Ballesteros, Rosa. rosa.hernansaiz@bioquant.uni-heidelberg.de
-DESCRIPTION : Functions to deal with comparisons between networks based on toplogy
+TITLE : topo_fun
+AUTHOR : Hernansaiz Ballesteros, Rosa.
+            rosa.hernansaiz@bioquant.uni-heidelberg.de
+DESCRIPTION : topological functions to deal with CARNIVAL's results.
+
 LICENSE : GPL-v3
 """
 
