@@ -82,7 +82,7 @@ def pathfinder(igra, Onodes, Enodes):
     :param Onodes list: initial nodes
     :param Enodes list: effector nodes
     :return: uniquelist contains all subpath form initial to effector nodes
-    :rtype: listo of lists
+    :rtype: list of lists
     """
     import igraph as ig
     from pypath import main, data_formats
@@ -101,3 +101,30 @@ def pathfinder(igra, Onodes, Enodes):
             uniquelist.append(i)
 
     return(uniquelist)
+
+def getTopology(Cfile):
+    """
+    Get all information form CARNIVAL:
+      - network in igraph format (icar)
+      - unique initial nodes (nodI) (for inverse CARNIVAL)
+      - unique effectors (nodE)
+      - isolated nodes (isoNode)
+      - subpaths (paths)
+    :param Cfile str: directory to CARNIVAL results
+    :return: contains icar, nodI, nodE, isoNode, paths
+    :rtype: list of lists
+    """
+    import pandas as pd
+
+    # carnival outputs
+    smpl_pd = pd.read_csv(Cfile + "/weightedModel_1.txt", sep = "\t")
+    smpl_nAtt = pd.read_csv(Cfile + "/nodesAttributes_1.txt", sep = "\t")
+
+    # create igraph object with weights and node attributes
+    nodI, nodE, icar = CARNIVAL2igraph_convert(smpl_pd)
+    icar, isoNode = CARNIVALnode_attribute(icar, smpl_nAtt)
+
+    # finde all subpaths from initial nodes to effectors
+    paths = pathfinder(icar, nodI, nodE)
+
+    return [icar, nodI, nodE, isoNode, paths]
