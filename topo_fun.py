@@ -7,11 +7,13 @@ DESCRIPTION : topological functions to deal with CARNIVAL's results.
 LICENSE : GPL-v3
 """
 
-def carnival2directGraph(weigthSample, inverse=True):
+def carnival2directGraph(weigthSample, inverse=True, verbose=False):
     """
     Creates a dirct graph from CARNIVAL's weight's file.
     :param weithSample string or pd.df: weightedModel_1.txt from CARNIVAL
     :param inverse boolean: type of carnival analysis. inverse=True (default)
+    :param verbose boolean: give printed information about repeated edges.
+                            False (default)
     :return: DG (direct graph)
     :rtype: networkX graph
     """
@@ -33,7 +35,8 @@ def carnival2directGraph(weigthSample, inverse=True):
 
         idxDE = dupEdge[['Node1', 'Node2']].groupby(dupEdge[['Node1', 'Node2']].columns.tolist()).apply(lambda x: tuple(x.index)).tolist()
 
-        print('Number of repeated edges:', dupEdge.shape[0]/2)
+        if verbose:
+            print('Number of repeated edges:', dupEdge.shape[0]/2)
 
         # get the highest value for the repeated edge (keeping sign)
         index2drop = []
@@ -80,11 +83,15 @@ def get_initiators_effectors(weigthSample, inverse=True):
     eNodes = set(wm['Node2']) - set(wm['Node1'])
 
     return(iNodes, eNodes)
-#
-def get_measurments(DG):
+
+def get_measurments(DG, extended=False):
     """
     Get network and node-based measurments for a network as networkX.DiGraph
     :param DG networkx.DiGraph: directed graph frim networkX
+    :param extended boolean: False default. get extra measures (diameter,
+                                                 avg closeness centrality,
+                                                 avg eccentricity,
+                                                 avg eigenvector centrality)
     :return: measure with values: number nodes, edges, network's density,
                                   avg betweenness centrality,
                                   avg degree centrality
@@ -98,17 +105,18 @@ def get_measurments(DG):
     measure['nNodes'] = nx.number_of_nodes(DG)
     measure['nEdges'] = nx.number_of_edges(DG)
     measure['density'] = nx.density(DG)
-    #measure['diameter'] = nx.diameter(DG)
     bc = nx.betweenness_centrality(DG)
     measure['avg betweenness centrality'] = np.mean(list(bc.values()))
     dc = nx.degree_centrality(DG)
     measure['avg degree centrality'] = np.mean(list(dc.values()))
-    #cc = nx.closeness_centrality(DG)
-    #measure['avg closeness centrality'] = np.mean(list(cc.values()))
-    #ec = nx.eccentricity(DG)
-    #measure['avg eccentricity'] = np.mean(list(ec.values()))
-    ev = nx.eigenvector_centrality(DG)
-    measure['avg eigenvector centrality'] = np.mean(list(ev.values()))
+    if extended:
+        measure['diameter'] = nx.diameter(DG)
+        cc = nx.closeness_centrality(DG)
+        measure['avg closeness centrality'] = np.mean(list(cc.values()))
+        ec = nx.eccentricity(DG)
+        measure['avg eccentricity'] = np.mean(list(ec.values()))
+        ev = nx.eigenvector_centrality(DG)
+        measure['avg eigenvector centrality'] = np.mean(list(ev.values()))
     return(measure)
 
 def CARNIVAL2igraph_convert(weigthSample):
