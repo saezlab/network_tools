@@ -68,12 +68,10 @@ createAdjacencyMatrix <- function(network=NULL, scafoldNET=NULL, weighted=F){
 compareAdjacencies <- function(adjMAT1=NULL, adjMAT2=NULL, weighted=F){
 
   # check that both matrices have same dimensions, and stop otherwhise
-  stopifnot('The matrices do not have the same rows', 
-            ncol(adjMAT1)==ncol(adjMAT2), 
+  stopifnot(ncol(adjMAT1)==ncol(adjMAT2), 
             all(colnames(adjMAT1)%in%colnames(adjMAT2)))
   
-  stopifnot('The matrices do not have the same rows', 
-            nrow(adjMAT1)==nrow(adjMAT2), 
+  stopifnot(nrow(adjMAT1)==nrow(adjMAT2), 
             all(row.names(adjMAT1)%in%row.names(adjMAT2)))
   
   # remove columns and rows that contain 0 for both matrices
