@@ -5,8 +5,8 @@ AUTHOR : Hernansaiz Ballesteros, Rosa.
 DESCRIPTION : Example of how to use topo_fun.py applied to CARNIVAL's results
                 of the Cell lines analysed in CARNIVAL1000
                 (https://github.com/saezlab/CARNIVAL1000).
-             Get pickle with the structure:
-             {c_type:{network:sample:[icar, nodI, nodE, isoNode, subpaths]}}
+             Get pickle with the dictionary structure:
+             {sample:[icar, nodI, nodE, isoNode, subpaths]}
              Get netsum.csv with some statistics of the pickles
              (sample, cancer_tissue, network, #vertices, #edges,
               #iniciators, #effectors, #isolated, #subpaths)
