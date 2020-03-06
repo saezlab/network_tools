@@ -10,29 +10,15 @@ About the code
 
 Developed on:
 
-- python 3.7.3 installed through
-ANACONDA [Clang 4.0.1 (tags/RELEASE_401/final)]
+- python 3.7.3 installed through ANACONDA [Clang 4.0.1 (tags/RELEASE_401/final)] in macOS Catalina version 10.15.1.
 
-in macOS Catalina version 10.15.1.
+**Packages (Version)**
+ * pandas (1.0.1)
+ * networkx (2.4.0)
+ * numpy (1.18.1)
 
-- R 3.6.0 (2019-04-26) -- "Planting of a Tree"
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
- 
-.. list-table:: **Packages (Versions)**
-   :widths: 25 25 
-   :header-rows: 0
-   * - **Python**
-     -  
-   * - numpy
-     - 1.18.1
-   * - pandas
-     - 1.0.1
-   * - networkx
-     - 2.4
-   * - matplotlib
-     - 3.1.3
-   * - **R**
-     -   
+
+- R 3.6.0 (2019-04-26) -- "Planting of a Tree" Platform: x86_64-apple-darwin15.6.0 (64-bit)
 
 Notes
 ================================
