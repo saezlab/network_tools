@@ -1,34 +1,24 @@
 network_tools
 ##########
 
-Collection of Python functions to run network-based analysis
+Collection of Python and R functions to run network-based analysis
 in signed and directed networks.
 Follow the jupyter notebook tutorial to see what you can do.
-The notebook jumps between python and R.
-Beside the packages below, you will also need to install
-
 
 About the code
 ================================
 
-Developed on python 3.7.3 installed through
-ANACONDA [Clang 4.0.1 (tags/RELEASE_401/final)]
-in macOS Catalina version 10.15.1.
+Developed on:
 
-.. list-table:: **Packages Versions**
-   :widths: 25 25
-   :header-rows: 0
+- python 3.7.3 installed through ANACONDA [Clang 4.0.1 (tags/RELEASE_401/final)] in macOS Catalina version 10.15.1.
 
-   * - **numpy**
-     - 1.18.1
-   * - **pandas**
-     - 1.0.1
-   * - **networkx**
-     - 2.4
-   * - **matplotlib**
-     - 3.1.3
+**Packages (Version)**
+ * pandas (1.0.1)
+ * networkx (2.4.0)
+ * numpy (1.18.1)
 
 
+- R 3.6.0 (2019-04-26) -- "Planting of a Tree" Platform: x86_64-apple-darwin15.6.0 (64-bit)
 
 Notes
 ================================
@@ -45,9 +35,10 @@ Thus, the weight that is kept is the highest (keeping the sign).
 Measurements
 ================================
 The function __get_measurments__ calculate the follow network's features:
-- Number of edges
-- Number of nodes
-- Density
-- Avg betweenness centrality
-- Avg degree centrality
-- Avg eigenvector centrality
+
+* Number of edges
+* Number of nodes
+* Density
+* Avg betweenness centrality
+* Avg degree centrality
+* Avg eigenvector centrality
