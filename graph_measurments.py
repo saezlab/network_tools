@@ -130,20 +130,16 @@ def adjacency2DG(adjaMTX):
     Creates a networkX direct graph based on the adjacency matrix
     :param adjaMTX pd.df: pandas data frame with the network interactions
                             rows are the sources and columns the targets
-    :param DG networkx.DiGraph: directed graph frim networkX
-    :param extended boolean: False default. get extra measures (diameter,
-                                                 avg closeness centrality,
-                                                 avg eccentricity,
-                                                 avg eigenvector centrality)
-    :return: DG networkx.DiGraph: directed graph from networkX
+
+    :return: DG: directed graph from networkX
     :rtype: networkx.DiGraph
     """
     import networkx as nx
     import pandas as pd
-    #import numpy as np
 
     sources = adjaMTX.index.tolist()
     targets = adjaMTX.columns.tolist()
+
     DG = nx.DiGraph()
 
     for source in sources:
@@ -151,4 +147,65 @@ def adjacency2DG(adjaMTX):
             w = adjaMTX.loc[source, target]
             if w != 0:
                 DG.add_edge(source, target, weight=w)
+
     return(DG)
+
+def annotate_shared_nodes(nodAtt, adjaMTX, value="S"):
+    """
+    :param adjaMTX pd.df: pandas data frame with the network interactions
+                            rows are the sources and columns the targets
+    :param nodAtt pd.df: node atributes data frame
+    :param value str: value to annotate the nodes in adjaMTX into nodAtt
+    :return: nodAtt: same nodAtt pd.df with an exta column: core
+    :rtype: pd.df
+    """
+
+    import pandas as pd
+
+    sources = adjaMTX.index.tolist()
+    targets = adjaMTX.columns.tolist()
+
+    #rename nodAtt DataFrame
+    nodAtt.columns = ['Node', 'ZeroAct', 'UpAct', 'DownAct', 'AvgAct', 'NodeType']
+
+    #Add empty column to annotate
+    nodAtt["core"] = ""
+
+    for source in sources:
+        for target in targets:
+            w = adjaMTX.loc[source, target]
+            if w != 0:
+                nodAtt.loc[nodAtt['Node']==source, "core"] = value
+                nodAtt.loc[nodAtt['Node']==target, "core"] = value
+
+    return(nodAtt)
+
+def annotate_shared_edges(edgAtt, adjaMTX, value="S"):
+    """
+    :param adjaMTX pd.df: pandas data frame with the network interactions
+                            rows are the sources and columns the targets
+    :param edgAtt pd.df: node atributes data frame
+    :param value str: value to annotate the nodes in adjaMTX into edgAtt
+    :return: edgAtt: same edgAtt pd.df with an exta column: core
+    :rtype: pd.df
+    """
+
+    import pandas as pd
+
+    sources = adjaMTX.index.tolist()
+    targets = adjaMTX.columns.tolist()
+
+    #rename edgAtt DataFrame
+    edgAtt.columns = ['Source', 'Sign', 'Target', 'Weight']
+
+    #Add empty column to annotate
+    edgAtt["core"] = ""
+
+    for source in sources:
+        for target in targets:
+            w = adjaMTX.loc[source, target]
+            if w != 0:
+                edgAtt.loc[(edgAtt['Source']==source) &
+                           (edgAtt['Target']==target), "core"] = value
+
+    return(edgAtt)
