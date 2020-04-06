@@ -5,14 +5,14 @@
 #'Same values as scafoldNET, but it can aditionaly contain a column with
 #'weights
 #'@param scafoldNET Data frame of values source, interaction, target
-#'@param weighted Boolean (False by default). Whether the network contains 
+#'@param weighted Boolean (False by default). Whether the network contains
 #'weights for the interactions or not
 #'
-#'@return Adjency matrix for the network. 
+#'@return Adjency matrix for the network.
 #'The sorce nodes go in rows, and the target in columns.
-#'The values are positive or negative to indicate the sign. 
-#'If weights availables, these values are included. 
-#'If not, only presence absence (+/-)1/0 is returned. 
+#'The values are positive or negative to indicate the sign.
+#'If weights availables, these values are included.
+#'If not, only presence absence (+/-)1/0 is returned.
 #'
 #'@export
 #'
@@ -24,27 +24,27 @@ createAdjacencyMatrix <- function(network=NULL, scafoldNET=NULL, weighted=F){
        fixed = FALSE, useBytes = FALSE)
   scafoldNET$target = gsub("-", "_", scafoldNET$target, ignore.case = FALSE, perl = FALSE,
                            fixed = FALSE, useBytes = FALSE)
-  
+
   colnames(network)[1:3] = c('source', 'interaction', 'target')
   if (weighted){ colnames(network)[4] = 'weight' }
-  
+
   #Create a matrix from interaction file
-  adjacency = matrix(data = 0, 
-                      nrow = length(unique(scafoldNET$source)), 
+  adjacency = matrix(data = 0,
+                      nrow = length(unique(scafoldNET$source)),
                       ncol = length(unique(scafoldNET$target)),
                       byrow = FALSE,
                       dimnames = list(sort(unique(scafoldNET$source)),
                                       sort(unique(scafoldNET$target))))
-  
+
   # Find duplicated interactions with different sign
   #duplicated(network[,c("source","target")])
   #fill matrix
   for (n in 1:nrow(network)){
     adjacency[network$source[n], network$target[n]] = as.numeric(network$interaction[n])*as.numeric(network$weight[n])
   }
-  
+
   return(adjacency)
-  
+
 }
 
 
@@ -68,12 +68,12 @@ createAdjacencyMatrix <- function(network=NULL, scafoldNET=NULL, weighted=F){
 compareAdjacencies <- function(adjMAT1=NULL, adjMAT2=NULL, weighted=F){
 
   # check that both matrices have same dimensions, and stop otherwhise
-  stopifnot(ncol(adjMAT1)==ncol(adjMAT2), 
+  stopifnot(ncol(adjMAT1)==ncol(adjMAT2),
             all(colnames(adjMAT1)%in%colnames(adjMAT2)))
-  
-  stopifnot(nrow(adjMAT1)==nrow(adjMAT2), 
+
+  stopifnot(nrow(adjMAT1)==nrow(adjMAT2),
             all(row.names(adjMAT1)%in%row.names(adjMAT2)))
-  
+
   # remove columns and rows that contain 0 for both matrices
   intrm = list()
   for (i in 1:2){
@@ -81,27 +81,27 @@ compareAdjacencies <- function(adjMAT1=NULL, adjMAT2=NULL, weighted=F){
     aux1 = aux1[aux1]
     aux2 = apply(adjMAT2, i, function(x) all(x==0))
     aux2 = aux2[aux2]
-    
-    intrm[[i]] <- intersect(names(aux1), 
+
+    intrm[[i]] <- intersect(names(aux1),
                       names(aux2))
   }
   adjMAT1 = adjMAT1[!(row.names(adjMAT1)%in%intrm[[1]]), !(colnames(adjMAT1)%in%intrm[[2]])]
   adjMAT2 = adjMAT2[!(row.names(adjMAT2)%in%intrm[[1]]), !(colnames(adjMAT2)%in%intrm[[2]])]
-  
+
   # Compare matrices
   sources = row.names(adjMAT1)
   targets = colnames(adjMAT1)
-  
+
   adjMtxList = list()
   for (nm in c('sharedMTX', 'uMtx1', 'uMtx2')){
-    adjMtxList[[nm]] = matrix(data = 0, 
-                              nrow = length(sources), 
+    adjMtxList[[nm]] = matrix(data = 0,
+                              nrow = length(sources),
                               ncol = length(targets),
                               byrow = FALSE,
                               dimnames = list(sources,
                                               targets))
   }
-  
+
   if(!weighted){
     adjMAT1[adjMAT1 < 0] <- -1
     adjMAT1[adjMAT1 > 0] <- 1
@@ -114,19 +114,19 @@ compareAdjacencies <- function(adjMAT1=NULL, adjMAT2=NULL, weighted=F){
       if( adjMAT1[source, target] == adjMAT2[source, target] ){
 
         adjMtxList[['sharedMTX']][source, target] = adjMAT1[source, target]
-        
+
       }else{
-        
+
         adjMtxList[['uMtx1']][source, target] = adjMAT1[source, target]
         adjMtxList[['uMtx2']][source, target] = adjMAT2[source, target]
-        
+
       }
     }
-    
+
   }
-  
+
   # Remove columns and rows that contain 0 for both matrices
-  
+
   adjMtxList = lapply(adjMtxList, function(mtx){
     rmr = apply(mtx, 1, function(x) all(x==0))
     rmc = apply(mtx, 2, function(x) all(x==0))
@@ -136,8 +136,71 @@ compareAdjacencies <- function(adjMAT1=NULL, adjMAT2=NULL, weighted=F){
   })
 
   return(adjMtxList)
-  
+
 }
 
+#'\code{getCoreTopology}
+#'
+#'Comparison of several topologies to extract the shared topology
+#'@param recoNET list of data frames which values are source interaction target and weight
+#'@param scafoldNET data frame which values are source interaction target
+#'@param weighted Boolean (False by default). Whether taking into account
+#'the match of weights or only the existence of the interaction.
+#'
+#'@return list of 2 data frames:
+#' - source interaction target shared among all elements
+#' - interactions vs elements
+#'Rosa Hernansaiz Ballesteros, 2020
+
+getCoreTopology <- function(recoNET=NULL, scafoldNET=NULL, weighted=F){
+
+  colnames(scafoldNET) = c('source', 'interaction', 'target')
+  scafoldNET$source = gsub("-", "_", scafoldNET$source, ignore.case = FALSE, perl = FALSE,
+                           fixed = FALSE, useBytes = FALSE)
+  scafoldNET$target = gsub("-", "_", scafoldNET$target, ignore.case = FALSE, perl = FALSE,
+                           fixed = FALSE, useBytes = FALSE)
+  scafoldNET$interaction[scafoldNET$interaction==1] = '+'
+  scafoldNET$interaction[scafoldNET$interaction==-1] = '-'
+
+  rnames = apply(scafoldNET, 1, paste0, collapse = ' ')
+
+  #Create a matrix from interaction files
+  topo = data.frame(matrix(data = NA,
+                     nrow = length(rnames),
+                     ncol = length(recoNET),
+                     byrow = FALSE,
+                     dimnames = list(rnames,
+                                     names(recoNET))),
+                    stringsAsFactors = F)
+
+  #Fill the data frame
+  for(s in names(recoNET)){
+    colnames(recoNET[[s]])[1:3] = c('source', 'interaction', 'target')
+    recoNET[[s]]$interaction[recoNET[[s]]$interaction==1] = '+'
+    recoNET[[s]]$interaction[recoNET[[s]]$interaction==-1] = '-'
+
+    aux = apply(recoNET[[s]][,1:3], 1, paste0, collapse = ' ')
+    rownames(recoNET[[s]]) = aux
+    if (weighted){
+      colnames(recoNET[[s]])[4] = 'weight'
+      topo[ , s ] = recoNET[[s]][match( rownames(topo), rownames(recoNET[[s]] )), 'weight']
+    }else{
+      topo[ which(rownames(topo)%in%aux), s ] = 1
+    }
+  }
+
+  #Remove interaccions that are not pressent in any sample
+  topo = topo[apply(topo, 1, function(x) any(!is.na(x))),]
+
+  #creat SIF of shared interactions
+  aux = topo[complete.cases(topo),]
+  sif = data.frame(do.call(rbind, sapply(rownames(aux), strsplit, split = ' ', fixed = T )), stringsAsFactors = F)
+  colnames(sif) = c('source', 'interaction', 'target')
+
+  sif$interaction[sif$interaction=='+'] = '1'
+  sif$interaction[sif$interaction=='-'] = '-1'
 
 
+  return(list(core = sif, tsamples= topo))
+
+}
